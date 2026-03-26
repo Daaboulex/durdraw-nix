@@ -1,0 +1,16 @@
+{
+  "package": "durdraw",
+  "upstream": {
+    "type": "github-release",
+    "owner": "cmang",
+    "repo": "durdraw"
+  },
+  "packageFile": "package.nix",
+  "hashes": [
+    "hash"
+  ],
+  "verify": {
+    "binary": "durdraw",
+    "args": "--help"
+  }
+}
