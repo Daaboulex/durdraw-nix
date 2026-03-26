@@ -1,29 +1,96 @@
-# durdraw-nix
+# durdraw (Nix)
 
-[durdraw](https://github.com/cmang/durdraw) packaged for NixOS — Unicode/ANSI/ASCII art editor for the terminal.
+Nix flake packaging for [durdraw](https://github.com/cmang/durdraw) by [Sam Foster (cmang)](https://github.com/cmang) — a Unicode, ANSI and ASCII art editor for the terminal.
 
-## Usage
+![Python](https://img.shields.io/badge/Python-3.10+-blue)
+![License BSD-3](https://img.shields.io/badge/License-BSD--3--Clause-green)
+![Version 0.29.0](https://img.shields.io/badge/Version-0.29.0-orange)
+![Platform](https://img.shields.io/badge/Platform-Linux-yellow)
 
-### Flake
+## Upstream
+
+This is a **Nix packaging wrapper** — not the original project. All credit for durdraw goes to:
+
+- **Author**: [Sam Foster (cmang)](https://github.com/cmang)
+- **Repository**: [github.com/cmang/durdraw](https://github.com/cmang/durdraw)
+- **License**: [BSD-3-Clause](https://github.com/cmang/durdraw/blob/master/LICENSE)
+
+## What Is This?
+
+A Nix flake that builds [durdraw](https://github.com/cmang/durdraw) from source with full CI infrastructure:
+
+- **Package integrity** — SRI hashes for source, verified on every build
+- **CI security** — pinned GitHub Actions (full SHA, not tags), minimal permissions, build-gated PRs
+- **Upstream trust** — daily automated version detection, hash recomputation, and binary verification before push
+- **Stale cleanup** — weekly flake.lock maintenance, stale branch cleanup
+
+durdraw provides:
+
+- **Unicode/ANSI/ASCII art editor** — full-featured terminal art editor with animation support
+- **256-color and 16-color modes** — create art in multiple color depths
+- **Animation** — frame-based animation with playback and export
+- **PNG/GIF export** — export art to PNG and animated GIF (via Pillow and ansilove)
+- **Includes durview and durfetch** — viewer and animated fetch utility
+
+## Installation
+
+### NixOS (Flake)
+
+Add as a flake input and use the overlay:
 
 ```nix
 {
-  inputs.durdraw.url = "github:Daaboulex/durdraw-nix";
+  inputs = {
+    nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
+    durdraw-nix = {
+      url = "github:Daaboulex/durdraw-nix";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+  };
+
+  outputs = { nixpkgs, durdraw-nix, ... }: {
+    nixosConfigurations.myhost = nixpkgs.lib.nixosSystem {
+      modules = [{
+        nixpkgs.overlays = [ durdraw-nix.overlays.default ];
+        environment.systemPackages = [ pkgs.durdraw ];
+      }];
+    };
+  };
 }
 ```
 
-### Overlay
-
-```nix
-nixpkgs.overlays = [ inputs.durdraw.overlays.default ];
-```
-
-### Run directly
+### Direct Run
 
 ```bash
 nix run github:Daaboulex/durdraw-nix
 ```
 
+### Profile Install
+
+```bash
+nix profile install github:Daaboulex/durdraw-nix
+```
+
+## Development
+
+```bash
+git clone https://github.com/Daaboulex/durdraw-nix
+cd durdraw-nix
+nix build
+./result/bin/durdraw --help
+```
+
+## Updates
+
+This repository uses automated daily checks via GitHub Actions to detect new upstream releases. When a new version is found:
+
+1. Source hash is recomputed from the release tarball
+2. Flake validation and test build must pass
+3. Binary verification (`durdraw --help`) must succeed
+4. Changes are pushed to main on success, or a diagnostic issue is created on failure
+
 ## License
 
-Packaging: MIT | Upstream: BSD-3-Clause
+This Nix packaging flake is provided as-is and carries no additional license terms.
+
+The upstream [durdraw](https://github.com/cmang/durdraw) project by [Sam Foster](https://github.com/cmang) is licensed under the **BSD 3-Clause License**. See the [upstream LICENSE file](https://github.com/cmang/durdraw/blob/master/LICENSE) for full terms.
