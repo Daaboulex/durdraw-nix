@@ -1,6 +1,11 @@
 # durdraw (Nix)
 
 [![CI](https://github.com/Daaboulex/durdraw-nix/actions/workflows/ci.yml/badge.svg)](https://github.com/Daaboulex/durdraw-nix/actions/workflows/ci.yml)
+[![License](https://img.shields.io/github/license/Daaboulex/durdraw-nix)](./LICENSE)
+[![NixOS](https://img.shields.io/badge/NixOS-unstable-78C0E8?logo=nixos&logoColor=white)](https://nixos.org)
+[![Last commit](https://img.shields.io/github/last-commit/Daaboulex/durdraw-nix)](https://github.com/Daaboulex/durdraw-nix/commits)
+[![Stars](https://img.shields.io/github/stars/Daaboulex/durdraw-nix?style=flat)](https://github.com/Daaboulex/durdraw-nix/stargazers)
+[![Issues](https://img.shields.io/github/issues/Daaboulex/durdraw-nix)](https://github.com/Daaboulex/durdraw-nix/issues)
 
 Nix flake packaging for [durdraw](https://github.com/cmang/durdraw) by [Sam Foster (cmang)](https://github.com/cmang) — a Unicode, ANSI and ASCII art editor for the terminal.
 
