@@ -1,5 +1,7 @@
 # durdraw (Nix)
 
+[![CI](https://github.com/Daaboulex/durdraw-nix/actions/workflows/ci.yml/badge.svg)](https://github.com/Daaboulex/durdraw-nix/actions/workflows/ci.yml)
+
 Nix flake packaging for [durdraw](https://github.com/cmang/durdraw) by [Sam Foster (cmang)](https://github.com/cmang) — a Unicode, ANSI and ASCII art editor for the terminal.
 
 ![Python](https://img.shields.io/badge/Python-3.10+-blue)
