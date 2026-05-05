@@ -1,11 +1,9 @@
 # durdraw (Nix)
 
-[![CI](https://github.com/Daaboulex/durdraw-nix/actions/workflows/ci.yml/badge.svg)](https://github.com/Daaboulex/durdraw-nix/actions/workflows/ci.yml)
-[![License](https://img.shields.io/github/license/Daaboulex/durdraw-nix)](./LICENSE)
-[![NixOS](https://img.shields.io/badge/NixOS-unstable-78C0E8?logo=nixos&logoColor=white)](https://nixos.org)
-[![Last commit](https://img.shields.io/github/last-commit/Daaboulex/durdraw-nix)](https://github.com/Daaboulex/durdraw-nix/commits)
-[![Stars](https://img.shields.io/github/stars/Daaboulex/durdraw-nix?style=flat)](https://github.com/Daaboulex/durdraw-nix/stargazers)
-[![Issues](https://img.shields.io/github/issues/Daaboulex/durdraw-nix)](https://github.com/Daaboulex/durdraw-nix/issues)
+<!-- BEGIN generated:badges -->
+[![NixOS unstable](https://img.shields.io/badge/NixOS-unstable-78C0E8?logo=nixos&logoColor=white)](https://nixos.org)
+[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](./LICENSE)
+<!-- END generated:badges -->
 
 Nix flake packaging for [durdraw](https://github.com/cmang/durdraw) by [Sam Foster (cmang)](https://github.com/cmang) — a Unicode, ANSI and ASCII art editor for the terminal.
 
@@ -14,13 +12,15 @@ Nix flake packaging for [durdraw](https://github.com/cmang/durdraw) by [Sam Fost
 ![Version 0.29.0](https://img.shields.io/badge/Version-0.29.0-orange)
 ![Platform](https://img.shields.io/badge/Platform-Linux-yellow)
 
+<!-- BEGIN generated:upstream -->
 ## Upstream
 
-This is a **Nix packaging wrapper** — not the original project. All credit for durdraw goes to:
-
-- **Author**: [Sam Foster (cmang)](https://github.com/cmang)
-- **Repository**: [github.com/cmang/durdraw](https://github.com/cmang/durdraw)
-- **License**: [BSD-3-Clause](https://github.com/cmang/durdraw/blob/master/LICENSE)
+| | |
+|---|---|
+| **Project** | [cmang/durdraw](https://github.com/cmang/durdraw) |
+| **License** | BSD-3-Clause |
+| **Tracked** | GitHub releases |
+<!-- END generated:upstream -->
 
 ## What Is This?
 
@@ -39,6 +39,7 @@ durdraw provides:
 - **PNG/GIF export** — export art to PNG and animated GIF (via Pillow and ansilove)
 - **Includes durview and durfetch** — viewer and animated fetch utility
 
+<!-- BEGIN generated:installation -->
 ## Installation
 
 ### NixOS (Flake)
@@ -78,6 +79,8 @@ nix run github:Daaboulex/durdraw-nix
 nix profile install github:Daaboulex/durdraw-nix
 ```
 
+<!-- END generated:installation -->
+
 ## Development
 
 ```bash
@@ -101,3 +104,9 @@ This repository uses automated daily checks via GitHub Actions to detect new ups
 This Nix packaging flake is provided as-is and carries no additional license terms.
 
 The upstream [durdraw](https://github.com/cmang/durdraw) project by [Sam Foster](https://github.com/cmang) is licensed under the **BSD 3-Clause License**. See the [upstream LICENSE file](https://github.com/cmang/durdraw/blob/master/LICENSE) for full terms.
+
+<!-- BEGIN generated:footer -->
+---
+
+*Maintained as part of the [Daaboulex](https://github.com/Daaboulex) NixOS ecosystem.*
+<!-- END generated:footer -->
