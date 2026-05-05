@@ -42,43 +42,22 @@ durdraw provides:
 <!-- BEGIN generated:installation -->
 ## Installation
 
-### NixOS (Flake)
-
-Add as a flake input and use the overlay:
+Add as a flake input:
 
 ```nix
 {
-  inputs = {
-    nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
-    durdraw-nix = {
-      url = "github:Daaboulex/durdraw-nix";
-      inputs.nixpkgs.follows = "nixpkgs";
-    };
-  };
-
-  outputs = { nixpkgs, durdraw-nix, ... }: {
-    nixosConfigurations.myhost = nixpkgs.lib.nixosSystem {
-      modules = [{
-        nixpkgs.overlays = [ durdraw-nix.overlays.default ];
-        environment.systemPackages = [ pkgs.durdraw ];
-      }];
-    };
+  inputs.durdraw = {
+    url = "github:Daaboulex/durdraw-nix";
+    inputs.nixpkgs.follows = "nixpkgs";
   };
 }
 ```
 
-### Direct Run
+Then add the overlay:
 
-```bash
-nix run github:Daaboulex/durdraw-nix
+```nix
+nixpkgs.overlays = [ inputs.durdraw.overlays.default ];
 ```
-
-### Profile Install
-
-```bash
-nix profile install github:Daaboulex/durdraw-nix
-```
-
 <!-- END generated:installation -->
 
 ## Development
