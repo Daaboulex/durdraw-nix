@@ -60,6 +60,29 @@ nixpkgs.overlays = [ inputs.durdraw.overlays.default ];
 ```
 <!-- END generated:installation -->
 
+## Usage
+
+Launch the editor:
+
+```bash
+durdraw                          # new canvas
+durdraw existing-art.dur         # open existing file
+durdraw --width 80 --height 24   # custom canvas size
+```
+
+### Viewer and fetch utility
+
+```bash
+durview artwork.dur              # display art in terminal
+durfetch                         # animated system fetch (like neofetch)
+```
+
+### Export
+
+```bash
+durdraw --export-png output.png input.dur
+durdraw --export-gif output.gif input.dur
+```
 ## Development
 
 ```bash
