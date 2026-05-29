@@ -16,6 +16,7 @@ Nix flake packaging for [durdraw](https://github.com/cmang/durdraw) by [Sam Fost
 | **Project** | [cmang/durdraw](https://github.com/cmang/durdraw) |
 | **License** | BSD-3-Clause |
 | **Tracked** | GitHub releases |
+
 <!-- END generated:upstream -->
 
 ## What Is This?
@@ -54,6 +55,7 @@ Then add the overlay:
 ```nix
 nixpkgs.overlays = [ inputs.durdraw.overlays.default ];
 ```
+
 <!-- END generated:installation -->
 
 ## Usage
@@ -79,6 +81,7 @@ durfetch                         # animated system fetch (like neofetch)
 durdraw --export-png output.png input.dur
 durdraw --export-gif output.gif input.dur
 ```
+
 ## Development
 
 ```bash
