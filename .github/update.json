@@ -12,5 +12,17 @@
   "verify": {
     "binary": "durdraw",
     "args": "--help"
-  }
+  },
+  "description": "durdraw packaged for NixOS - Unicode/ANSI/ASCII art editor for the terminal with animation and PNG/GIF export",
+  "topics": [
+    "nix",
+    "nixos",
+    "flake",
+    "durdraw",
+    "ansi-art",
+    "ascii-art",
+    "terminal",
+    "text-editor",
+    "animation"
+  ]
 }
