@@ -102,7 +102,7 @@ This repository uses automated daily checks via GitHub Actions to detect new ups
 
 ## License
 
-This Nix packaging flake is provided as-is and carries no additional license terms.
+This packaging flake is [MIT](./LICENSE) licensed. Upstream [durdraw](https://github.com/cmang/durdraw) is BSD-3-Clause.
 
 The upstream [durdraw](https://github.com/cmang/durdraw) project by [Sam Foster](https://github.com/cmang) is licensed under the **BSD 3-Clause License**. See the [upstream LICENSE file](https://github.com/cmang/durdraw/blob/master/LICENSE) for full terms.
 
