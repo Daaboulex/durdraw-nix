@@ -37,7 +37,7 @@
         };
 
       flake.overlays.default = final: _prev: {
-        durdraw = inputs.self.packages.${final.stdenv.hostPlatform.system}.default;
+        durdraw = final.callPackage ./package.nix { };
       };
     };
 }
