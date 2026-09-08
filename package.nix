@@ -6,7 +6,7 @@
 }:
 
 let
-  version = "0.29.0";
+  version = "0.30.0";
 in
 python3Packages.buildPythonApplication {
   pname = "durdraw";
@@ -17,7 +17,7 @@ python3Packages.buildPythonApplication {
     owner = "cmang";
     repo = "durdraw";
     rev = version;
-    hash = "sha256-a+4DGWBD5XLaNAfTN/fmI/gALe76SCoWrnjyglNhVPY=";
+    hash = "sha256-R2d9DU3FaFN+GeKyJr8+uMEKw0fXdhGq3OvoN+z2DIE=";
   };
 
   build-system = with python3Packages; [
