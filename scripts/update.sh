@@ -20,6 +20,32 @@ log() { echo "==> $*"; }
 warn() { echo "::warning::$*"; }
 err() { echo "::error::$*"; }
 
+# check_suite — run the flake check the way the build step is run, and report
+# what actually failed. A flake check BUILDS its check derivations, so a
+# builder failure surfaces here and never reaches the build step below;
+# calling every red check an evaluation failure sends the reader to the wrong
+# place. --no-eval-cache stops a cached evaluation reporting green, and
+# --print-build-logs puts the builder's own output in the log the workflow
+# classifies.
+check_suite() {
+  local clog rc
+  clog=$(mktemp)
+  nix flake check --no-eval-cache --print-build-logs 2>&1 | tee "$clog"
+  rc=${PIPESTATUS[0]}
+  if [ "$rc" -eq 0 ]; then
+    rm -f "$clog"
+    return 0
+  fi
+  err "Check suite failed"
+  if grep -qE "Cannot build '/nix/store/[^']+\.drv'" "$clog"; then
+    output "error_type" "build-error"
+  else
+    output "error_type" "eval-error"
+  fi
+  rm -f "$clog"
+  return 1
+}
+
 # re_esc <str> — backslash-escape every regex metacharacter so a dynamic
 # string (a Nix identifier from update.json) is matched literally in
 # grep -P, sed -E, and plain sed expressions. Nix identifiers only contain
@@ -240,9 +266,7 @@ if [ -z "$VARIANT_ASSETS" ] && [ "$TRACK_ONLY" != "true" ] &&
   log "Update found: $CURRENT_VERSION -> $NEW_VERSION (nix-update)"
   output "updated" "true"
   log "Step 1/2: nix flake check"
-  if ! nix flake check 2>&1; then
-    err "Check suite failed"
-    output "error_type" "eval-error"
+  if ! check_suite; then
     exit 1
   fi
   log "Step 2/2: nix build + artifact verification"
@@ -454,8 +478,9 @@ fi
 # is not orderable by builtins.compareVersions. "unstable-date" instead
 # writes "<base>-unstable-<YYYY-MM-DD>" (the nixpkgs VCS-snapshot
 # convention). The base is upstream's newest tagFilter-matching tag, refetched
-# on every bump so a new upstream release cannot leave it understating the
-# snapshot; update.json `versionBase` is the fallback for a tagless upstream.
+# on every bump for a github-commit or git-ls-remote upstream, so a new release
+# cannot leave it understating the snapshot; update.json `versionBase` is the
+# fallback for a tagless upstream, and for a type that cannot list tags.
 # The rev (the real SHA) still tracks every commit. Comparison switches to the
 # rev, since the date string would otherwise differ every day and loop forever.
 if [ "$VERSION_SCHEME" = "unstable-date" ]; then
@@ -484,6 +509,19 @@ if [ "$VERSION_SCHEME" = "unstable-date" ]; then
       exit 2
     fi
     [ -n "$PAGED_MATCH" ] && BASE="${PAGED_MATCH#v}"
+  elif [ "$UPSTREAM_TYPE" = "git-ls-remote" ]; then
+    # ls-remote carries no dates, so the newest tag is the highest version
+    # rather than the most recently created one. The shape filter is what makes
+    # that safe: an upstream carrying a tag like test-tag2 or 0.0.3.git sorts it
+    # above every release, and the base would then be junk.
+    TAGS=$(fetch_latest "git ls-remote --tags --refs '$URL'") || {
+      warn "Failed to fetch tags from $URL"
+      output "updated" "false"
+      exit 2
+    }
+    BASE=$(echo "$TAGS" | sed 's|.*refs/tags/||; s/^v//' |
+      { grep -E "$TAG_FILTER" || true; } |
+      { grep -E '^[0-9]+(\.[0-9]+)*$' || true; } | sort -V | tail -1)
   fi
   [ -z "$BASE" ] && BASE=$(echo "$CONFIG" | jq -r '.versionBase // empty')
   [ -z "$BASE" ] && BASE="${CURRENT_VERSION%%-unstable-*}"
@@ -824,9 +862,7 @@ fi
 
 # --- Verification chain --------------------------------------------------
 log "Step 1/3: nix flake check"
-if ! nix flake check 2>&1; then
-  err "Check suite failed"
-  output "error_type" "eval-error"
+if ! check_suite; then
   exit 1
 fi
 

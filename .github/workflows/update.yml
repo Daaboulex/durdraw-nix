@@ -17,9 +17,27 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-      - uses: DeterminateSystems/determinate-nix-action@527f17dd63d2d60d3e5552934bc84b9a33a14d11 # v3.22.2
+      - uses: DeterminateSystems/determinate-nix-action@8d87e8d5e5b8a8309d4281094560f127d9a265f1 # v3.22.5
         with:
           extra-conf: lazy-trees = false
+
+      # The verification runs built binaries (verify.binary, a custom smoke
+      # test), and a buildFHSEnv wrapper starts bwrap in an unprivileged user
+      # namespace. Ubuntu 24.04's AppArmor denies that by default, and 26.04
+      # adds a second knob; each is opened only where it exists, and the
+      # postcondition is proven so a runner that still refuses fails here,
+      # named, and not as a smoke-test verdict on the package.
+      - name: Allow unprivileged user namespaces
+        run: |
+          for knob in kernel.apparmor_restrict_unprivileged_userns kernel.apparmor_restrict_unprivileged_unconfined; do
+            f="/proc/sys/${knob//.//}"
+            [ -e "$f" ] || continue
+            sudo sysctl -w "$knob=0"
+          done
+          unshare --user --map-root-user true || {
+            echo "::error::this runner refuses an unprivileged user namespace, so nothing wrapped in bwrap can be verified here"
+            exit 1
+          }
 
       - name: Run update
         id: update
@@ -137,6 +155,14 @@ jobs:
       # `updated`) so config/version-read failures — which never reach the
       # point of setting `updated` — still surface. A single exit 2 is
       # transient and files nothing; a week-long streak of them is `stalled`.
+      # The updater's own log already holds the builder output; name the class
+      # from it so the issue title says what broke, not merely that something
+      # did. maintenance.yml has done this since the classifier existed.
+      - name: Classify the failure
+        id: classify
+        if: steps.update.outputs.exit_code == '1'
+        run: bash scripts/classify-build-failure.sh /tmp/update.log
+
       - name: Create failure issue
         if: steps.update.outputs.exit_code == '1' || steps.streak.outputs.stalled == 'true'
         uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9 (node24)
@@ -148,6 +174,9 @@ jobs:
           NEW_VERSION: ${{ steps.update.outputs.new_version }}
           UPSTREAM_URL: ${{ steps.update.outputs.upstream_url }}
           PKG: ${{ steps.update.outputs.package_name }}
+          FAIL_CLASS: ${{ steps.classify.outputs.class }}
+          FAILED_ATTRS: ${{ steps.classify.outputs.failed_attrs }}
+          FAILED_DRVS: ${{ steps.classify.outputs.failed_drvs }}
         with:
           script: |
             const fs = require('fs');
@@ -158,6 +187,18 @@ jobs:
             const newV = process.env.NEW_VERSION || '?';
             const upstream = process.env.UPSTREAM_URL || '';
             const pkg = process.env.PKG || context.repo.repo;
+            const failClass = process.env.FAIL_CLASS || '';
+            const failedAttrs = process.env.FAILED_ATTRS || '';
+            const failedDrvs = process.env.FAILED_DRVS || '';
+            const titleClass = (failClass && failClass !== 'unclassified') ? failClass : errorType;
+            const failureBlock = (failedAttrs || failedDrvs) ? [
+              '### Failing targets, the complete set',
+              '',
+              '```',
+              [failedAttrs, failedDrvs].filter(Boolean).join('\n'),
+              '```',
+              ''
+            ] : [];
 
             const existing = await github.rest.issues.listForRepo({
               owner: context.repo.owner, repo: context.repo.repo,
@@ -197,14 +238,14 @@ jobs:
               '```bash',
               `git fetch && git checkout update/${pkg}-${newV}`,
               '# Fix the issue, then:',
-              'nix build --no-link && nix flake check --no-build',
+              'nix flake check --no-eval-cache && nix build --no-link',
               `git checkout main && git merge update/${pkg}-${newV}`,
               '```'
             ] : [];
 
             await github.rest.issues.create({
               owner: context.repo.owner, repo: context.repo.repo,
-              title: `Update ${pkg} ${oldV} -> ${newV}: ${errorType}`,
+              title: `Update ${pkg} ${oldV} -> ${newV}: ${titleClass}`,
               labels: ['update-failed'],
               body: [
                 `## Update Failed: ${pkg} ${oldV} -> ${newV}`,
@@ -212,6 +253,7 @@ jobs:
                 `**Failure**: \`${errorType}\``,
                 upstream ? `**Upstream**: ${upstream}` : '',
                 '',
+                ...failureBlock,
                 '### Build log (last 100 lines)',
                 '<details><summary>Click to expand</summary>',
                 '',
