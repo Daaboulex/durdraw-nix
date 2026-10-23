@@ -6,7 +6,7 @@
 }:
 
 let
-  version = "0.30.1";
+  version = "0.31.1";
 in
 python3Packages.buildPythonApplication {
   pname = "durdraw";
@@ -17,8 +17,13 @@ python3Packages.buildPythonApplication {
     owner = "cmang";
     repo = "durdraw";
     rev = version;
-    hash = "sha256-kiSqjULJqpz4mGTXfvM0R4N/YNvnG8OPz83QJMqKSXQ=";
+    hash = "sha256-aOLpRFxguxZpeV1MkPQzposknDion3Np+izIsYVBcSA=";
   };
+
+  postPatch = ''
+    substituteInPlace durdraw/durdraw_ansiparse.py \
+      --replace-fail "log.getLogger('ansiparse', level='DEBUG', override=True)" "log.getLogger('ansiparse')"
+  '';
 
   build-system = with python3Packages; [
     setuptools

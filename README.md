@@ -78,9 +78,34 @@ durfetch                         # animated system fetch (like neofetch)
 ### Export
 
 ```bash
-durdraw --export-png output.png input.dur
-durdraw --export-gif output.gif input.dur
+durdraw --export-ansi input.dur   # writes input.ansi next to it, then exits
 ```
+
+PNG and animated GIF export live in the editor's save menu (PNG through
+ansilove, GIF through Pillow); upstream has no command-line flag for them.
+
+## Where durdraw writes
+
+durdraw has no variable or flag for its paths, so they are what upstream
+hardcodes (0.31.1):
+
+- `~/.config/durdraw/` is created at every start: `durdraw/log.py:52` fixes the
+  log directory and `app_log_filepath` (`log.py:62-69`) refuses any other one.
+  The log file itself, `durdraw.log`, appears only when something is logged at
+  the configured level (WARNING unless `[Logging] level` says otherwise).
+- Config is read from `/etc/durdraw/durdraw.ini`, `~/.durdraw/durdraw.ini` and
+  `~/.config/durdraw/durdraw.ini` (`durdraw_appstate.py:342`).
+- Choosing a theme in the editor writes its path to `~/.durdraw/theme-16` or
+  `theme-256` (`durdraw_appstate.py:452-456`), and only when `~/.durdraw`
+  already exists; durdraw never creates that directory.
+
+Upstream's ANSI parser forces its logger to DEBUG at import
+(`durdraw_ansiparse.py:27`), which overrides the WARNING default and appends
+about 10 KB to `durdraw.log` on every start. `package.nix` drops that override
+with `substituteInPlace --replace-fail`, so the build fails, and names the
+line, on the release that fixes it upstream. The `smoke` check exports a
+bundled example to ANSI under an empty `HOME` and fails if durdraw writes
+anything there beyond `~/.config/durdraw/`.
 
 ## Development
 
@@ -88,7 +113,7 @@ durdraw --export-gif output.gif input.dur
 git clone https://github.com/Daaboulex/durdraw-nix
 cd durdraw-nix
 nix build
-./result/bin/durdraw --help
+./result/bin/durdraw --version
 ```
 
 ## Updates
@@ -97,7 +122,7 @@ This repository uses automated daily checks via GitHub Actions to detect new ups
 
 1. Source hash is recomputed from the release tarball
 2. Flake validation and test build must pass
-3. Binary verification (`durdraw --help`) must succeed
+3. The `smoke` check must pass: a bundled example exported to ANSI under an empty `HOME`, writing nothing outside `~/.config/durdraw/`
 4. Changes are pushed to main on success, or a diagnostic issue is created on failure
 
 ## License

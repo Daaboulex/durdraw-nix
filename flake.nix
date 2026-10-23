@@ -30,10 +30,28 @@
         {
           packages.default = pkgs.callPackage ./package.nix { };
 
-          checks.smoke = pkgs.runCommand "durdraw-smoke" { } ''
-            ${self'.packages.default}/bin/durdraw --help > /dev/null
-            touch "$out"
-          '';
+          checks.smoke =
+            pkgs.runCommand "durdraw-smoke"
+              {
+                nativeBuildInputs = [ pkgs.util-linux ];
+                art = "${self'.packages.default.src}/examples/cm-eye.dur";
+              }
+              ''
+                export HOME="$TMPDIR/home" TERM=xterm-256color TERMINFO_DIRS=${pkgs.ncurses}/share/terminfo
+                mkdir -p "$HOME"
+                install -m 644 "$art" art.dur
+                script -qec "${pkgs.lib.getExe self'.packages.default} --export-ansi art.dur" /dev/null
+                if ! grep -q $'\e\\[' art.ansi; then
+                  echo "durdraw --export-ansi wrote no ANSI art to art.ansi"
+                  exit 1
+                fi
+                written=$(cd "$HOME" && find . -mindepth 1 | sort | tr '\n' ' ')
+                if [ "$written" != "./.config ./.config/durdraw " ]; then
+                  echo "durdraw wrote outside its own config directory: $written"
+                  exit 1
+                fi
+                touch "$out"
+              '';
         };
 
       flake.overlays.default = final: _prev: {
