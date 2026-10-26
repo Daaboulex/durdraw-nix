@@ -35,7 +35,10 @@ python3Packages.buildPythonApplication {
   ];
 
   makeWrapperArgs = [
-    "--prefix PATH : ${lib.makeBinPath [ ansilove ]}"
+    "--prefix"
+    "PATH"
+    ":"
+    (lib.makeBinPath [ ansilove ])
   ];
 
   meta = {
