@@ -21,16 +21,11 @@ Nix flake packaging for [durdraw](https://github.com/cmang/durdraw) by [Sam Fost
 
 ## What Is This?
 
-A Nix flake that builds [durdraw](https://github.com/cmang/durdraw) from source with full CI infrastructure:
-
-- **Package integrity** — SRI hashes for source, verified on every build
-- **CI security** — pinned GitHub Actions (full SHA, not tags), minimal permissions, build-gated PRs
-- **Upstream trust** — daily automated version detection, hash recomputation, and binary verification before push
-- **Stale cleanup** — weekly flake.lock maintenance, stale branch cleanup
+A Nix flake that builds [durdraw](https://github.com/cmang/durdraw) from source.
 
 durdraw provides:
 
-- **Unicode/ANSI/ASCII art editor** — full-featured terminal art editor with animation support
+- **Unicode/ANSI/ASCII art editor.** A terminal art editor with animation support
 - **256-color and 16-color modes** — create art in multiple color depths
 - **Animation** — frame-based animation with playback and export
 - **PNG/GIF export** — export art to PNG and animated GIF (via Pillow and ansilove)
@@ -101,7 +96,7 @@ hardcodes (0.31.1):
 
 Upstream's ANSI parser forces its logger to DEBUG at import
 (`durdraw_ansiparse.py:27`), which overrides the WARNING default and appends
-about 10 KB to `durdraw.log` on every start. `package.nix` drops that override
+about 10 KB to `durdraw.log` on every start. [package.nix](./package.nix) drops that override
 with `substituteInPlace --replace-fail`, so the build fails, and names the
 line, on the release that fixes it upstream. The `smoke` check exports a
 bundled example to ANSI under an empty `HOME` and fails if durdraw writes
